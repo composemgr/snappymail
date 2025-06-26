@@ -1,0 +1,38 @@
+name: snappymail
+services:
+  app:
+    image: djmaze/snappymail:latest
+    container_name: snappymail
+    domainname: ${BASE_DOMAIN_NAME:-}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    environment:
+      - DEBUG=false
+    ports:
+      - 172.17.0.1:60198:8888
+    volumes:
+      - './rootfs/data/snappymail:/var/lib/snappymail'
+    networks:
+      - snappymail
+
+  db:
+    image: mariadb:latest
+    container_name: snappymail-db
+    hostname: db
+    restart: always
+    pull_policy: always
+    environment:
+      - MYSQL_USER=snappymail
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=snappymail
+      - MYSQL_DATABASE=snappymail
+    volumes:
+      - './rootfs/db/mariadb:/var/lib/mysql'
+    networks:
+      - snappymail
+
+networks:
+  snappymail:
+    name: snappymail
+    external: false
