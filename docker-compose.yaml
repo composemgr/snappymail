@@ -38,7 +38,7 @@ services:
       MYSQL_PASSWORD: snappymail
       MYSQL_DATABASE: snappymail
     volumes:
-      - './rootfs/db/mariadb:/var/lib/mysql'
+      - './rootfs/data/db/mariadb:/var/lib/mysql'
     networks:
       - snappymail
 
