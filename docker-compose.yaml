@@ -22,7 +22,7 @@ services:
     ports:
       - 172.17.0.1:60198:8888
     volumes:
-      - './rootfs/data/snappymail:/var/lib/snappymail'
+      - './volumes/data/snappymail:/var/lib/snappymail'
     networks:
       - snappymail
 
@@ -38,7 +38,7 @@ services:
       MYSQL_PASSWORD: snappymail
       MYSQL_DATABASE: snappymail
     volumes:
-      - './rootfs/data/db/mariadb:/var/lib/mysql'
+      - './volumes/data/db/mariadb:/var/lib/mysql'
     networks:
       - snappymail
 
