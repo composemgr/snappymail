@@ -46,25 +46,6 @@ services:
       - 'traefik.http.routers.snappymail-app-secure.service=snappymail-app'
       - 'traefik.http.services.snappymail-app.loadbalancer.server.port=8888'
 
-  db:
-    image: mariadb:latest
-    container_name: snappymail-db
-    hostname: snappymail-db
-    restart: always
-    pull_policy: always
-    logging: *default-logging
-    environment:
-      TZ: ${TZ:-America/New_York}
-      MARIADB_USER: ${DB_USER_NAME:-snappymail}
-      MARIADB_ROOT_PASSWORD: ${DB_ADMIN_PASS:-changeme_admin_password}
-      MARIADB_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
-      MARIADB_DATABASE: ${DB_CREATE_DATABASE_NAME:-snappymail}
-      CONTAINER_NAME: snappymail-db
-    volumes:
-      - './volumes/data/db/mariadb/snappymail:/var/lib/mysql'
-    networks:
-      - snappymail
-
 networks:
   snappymail:
     name: snappymail
