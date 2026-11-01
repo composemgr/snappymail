@@ -1,0 +1,40 @@
+name: snappymail
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: djmaze/snappymail:latest
+    container_name: snappymail-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: snappymail-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      DEBUG: ${SNAPPYMAIL_DEBUG:-false}
+      UPLOAD_MAX_SIZE: ${SNAPPYMAIL_UPLOAD_MAX_SIZE:-25M}
+      MEMORY_LIMIT: ${SNAPPYMAIL_MEMORY_LIMIT:-128M}
+      SECURE_COOKIES: ${SNAPPYMAIL_SECURE_COOKIES:-true}
+    volumes:
+      - './volumes/data/snappymail:/var/lib/snappymail:z'
+    labels:
+      - 'cloudflare.enable=true'
+      - 'cloudflare.service=http://snappymail-app:8888'
+      - 'cloudflare.hostname=${BASE_HOST_NAME:-$HOSTNAME}'
+    networks:
+      - snappymail
+      - cloudflare
+
+networks:
+  snappymail:
+    name: snappymail
+    external: false
+  cloudflare:
+    external: true

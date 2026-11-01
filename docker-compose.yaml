@@ -1,4 +1,4 @@
-# nginx proxy address - http://172.17.0.1:60198
+# nginx proxy address - http://172.17.0.1:64347
 
 name: snappymail
 x-logging: &default-logging
@@ -18,39 +18,20 @@ services:
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
-      DEBUG: false
       CONTAINER_NAME: snappymail-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      DEBUG: ${SNAPPYMAIL_DEBUG:-false}
+      UPLOAD_MAX_SIZE: ${SNAPPYMAIL_UPLOAD_MAX_SIZE:-25M}
+      MEMORY_LIMIT: ${SNAPPYMAIL_MEMORY_LIMIT:-128M}
+      SECURE_COOKIES: ${SNAPPYMAIL_SECURE_COOKIES:-true}
     ports:
-      - 172.17.0.1:60198:8888
+      - '172.17.0.1:64347:8888'
     volumes:
-      - './volumes/data/snappymail:/var/lib/snappymail'
+      - './volumes/data/snappymail:/var/lib/snappymail:z'
     networks:
       - snappymail
-      - proxy
-      - cloudflare
-    labels:
-      - 'traefik.enable=true'
-      - 'cloudflare.enable=true'
-      - 'traefik.docker.network=proxy'
-      - 'cloudflare.service=http://snappymail-app:8888'
-      - 'cloudflare.hostname=snappymail.${CLOUDFLARE_ZONE_NAME:-}'
-      - 'traefik.http.routers.snappymail-app.entrypoints=http'
-      - 'traefik.http.routers.snappymail-app-secure.tls=true'
-      - 'traefik.http.routers.snappymail-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
-      - 'traefik.http.middlewares.snappymail-app-https-redirect.redirectscheme.scheme=https'
-      - 'traefik.http.routers.snappymail-app.middlewares=snappymail-app-https-redirect'
-      - 'traefik.http.routers.snappymail-app-secure.entrypoints=https'
-      - 'traefik.http.routers.snappymail-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
-      - 'traefik.http.routers.snappymail-app-secure.tls.certresolver=cloudflare'
-      - 'traefik.http.routers.snappymail-app-secure.service=snappymail-app'
-      - 'traefik.http.services.snappymail-app.loadbalancer.server.port=8888'
 
 networks:
   snappymail:
     name: snappymail
     external: false
-  proxy:
-    external: true
-  cloudflare:
-    external: true

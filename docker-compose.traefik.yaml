@@ -1,0 +1,48 @@
+name: snappymail
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: djmaze/snappymail:latest
+    container_name: snappymail-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: snappymail-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      DEBUG: ${SNAPPYMAIL_DEBUG:-false}
+      UPLOAD_MAX_SIZE: ${SNAPPYMAIL_UPLOAD_MAX_SIZE:-25M}
+      MEMORY_LIMIT: ${SNAPPYMAIL_MEMORY_LIMIT:-128M}
+      SECURE_COOKIES: ${SNAPPYMAIL_SECURE_COOKIES:-true}
+    volumes:
+      - './volumes/data/snappymail:/var/lib/snappymail:z'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik'
+      - 'traefik.http.routers.snappymail-app.entrypoints=http'
+      - 'traefik.http.routers.snappymail-app.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`)'
+      - 'traefik.http.routers.snappymail-app.middlewares=snappymail-app-https-redirect'
+      - 'traefik.http.middlewares.snappymail-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.snappymail-app-secure.entrypoints=https'
+      - 'traefik.http.routers.snappymail-app-secure.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`)'
+      - 'traefik.http.routers.snappymail-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.snappymail-app-secure.service=snappymail-app'
+      - 'traefik.http.services.snappymail-app.loadbalancer.server.port=8888'
+    networks:
+      - snappymail
+      - traefik
+
+networks:
+  snappymail:
+    name: snappymail
+    external: false
+  traefik:
+    external: true
