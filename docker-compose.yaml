@@ -24,6 +24,12 @@ services:
       UPLOAD_MAX_SIZE: ${SNAPPYMAIL_UPLOAD_MAX_SIZE:-25M}
       MEMORY_LIMIT: ${SNAPPYMAIL_MEMORY_LIMIT:-128M}
       SECURE_COOKIES: ${SNAPPYMAIL_SECURE_COOKIES:-true}
+    healthcheck:
+      test: ['CMD', 'curl', '-s', '-o', '/dev/null', '--max-time', '5', 'http://127.0.0.1:8888/']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     ports:
       - '172.17.0.1:64347:8888'
     volumes:
